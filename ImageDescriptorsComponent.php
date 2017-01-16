@@ -9,8 +9,8 @@ use Cake\Controller\ComponentRegistry;
  */
 class ImageDescriptorsComponent extends Component
 {
-	protected $_defaultConfig = [];
-	protected $_image = null;
+    protected $_defaultConfig = [];
+    protected $_image = null;
     protected $_width = null; 
     protected $_height = null;
     protected $_matrix = null;

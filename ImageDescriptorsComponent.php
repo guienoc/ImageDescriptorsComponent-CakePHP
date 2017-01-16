@@ -15,11 +15,10 @@ class ImageDescriptorsComponent extends Component
     protected $_height = null;
     protected $_matrix = null;
     
-    
 
     protected function _loadImage($image_url=null)
     {
-    	$this->_image = imagecreatefromjpeg($image_url);
+        $this->_image = imagecreatefromjpeg($image_url);
         $this->_width = imagesx($this->_image);
         $this->_height = imagesy($this->_image);
     }
@@ -33,11 +32,16 @@ class ImageDescriptorsComponent extends Component
         return [$r,$g,$b];
     }
 
-    protected function _image2Matrix()
+    protected function _image2Matrix($spaceColor='rgb')
     {
         for ($i=0; $i < $this->_width ; $i++) { 
-            for ($j=0; $j < $this->_height; $j++) { 
-                $this->_matrix[$i][$j] = $this->_getRGB($i,$j);
+            for ($j=0; $j < $this->_height; $j++) {
+                $rgb = $this->_getRGB($i,$j);
+                if ($spaceColor=='ycbcr') {
+                    $this->_matrix[$i][$j] = $this->_RGB2YCbCr($rgb);
+                } else {
+                    $this->_matrix[$i][$j] = $rgb;
+                }
             }
         }
     }
@@ -51,6 +55,19 @@ class ImageDescriptorsComponent extends Component
         $this->_height = 8;
     }
 
+    public function _RGB2YCbCr($rgb=[])
+    {
+        $Y = 16 + 65.738*$rgb[0]/256 + 129.057*$rgb[1]/256 + 25.064*$rgb[2]/256;
+        $Cb = 128 - 37.945*$rgb[0]/256 - 74.494*$rgb[1]/256 + 112.439*$rgb[2]/256;
+        $Cr = 128 + 112.439*$rgb[0]/256 - 94.154*$rgb[1]/256 - 18.285*$rgb[2]/256;
+        return [round($Y), round($Cb), round($Cr)];
+    }
+
+    protected function _matrix2YCbCr()
+    {
+
+    }
+
     protected function _zigzag()
     {
         $zigzag = [1,2,9,17,10,3,4,11,18,25,33,26,19,12,5,6,13,29,27,34,41,49,42,35,28,21,14,7,8,15,22,29,36,43,50,57,58,51,44,37,30,23,16,24,31,38,45,52,59,60,53,46,39,32,49,47,54,61,62,55,48,56,63,64];
@@ -58,13 +75,18 @@ class ImageDescriptorsComponent extends Component
             
         }
     }
+    protected function _DCT()
+    {
+
+    }
     
     public function CLD($image_url=null)
     {
-    	if ($image_url) {
-    		$this->image = $this->_loadImage($image_url);
-    	}
+        if ($image_url) {
+            $this->image = $this->_loadImage($image_url);
+        }
         $this->_partitioning();
-        $this->_image2Matrix();
+        $this->_image2Matrix('ycbcr');
     }
+
 }

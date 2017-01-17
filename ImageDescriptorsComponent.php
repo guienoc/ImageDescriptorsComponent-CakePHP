@@ -76,33 +76,37 @@ class ImageDescriptorsComponent extends Component
     }
     protected function _DCT()
     {
-        
         $dct = [];
-        $n = $this->_width;
-        $m = $this->_height;
-        $sqrt_1o2 = sqrt(1/2);
-        for ($k=0; $k < 3 ; $k++) { 
-            for ($u=0; $u<$n; $u++) {
-                for ($v=0; $v<$m; $v++) {
+        $M = $this->_width;
+        $N = $this->_height;
+        for ($k=0; $k < 3; $k++) { 
+            for ($p=0; $p < $M ; $p++) { 
+                for ($q=0; $q < $N ; $q++) { 
+                    $a1 = ($p) ? sqrt(2/$M): 1/sqrt($M);
+                    $a2 = ($q) ? sqrt(2/$N): 1/sqrt($N);
                     $sum = 0;
-                    for ($i=0; $i<$n; $i++) {
-                        for ($j=0;$j<$m; $j++) {
-                            $m1 = ($i) ? 1: $sqrt_1o2;
-                            $m2 = ($j) ? 1: $sqrt_1o2;
-                            $cos1 = cos( ((pi()*$u) / (2*$n))*(2*$i+1));
-                            $cos2 = cos( ((pi()*$v) / (2*$m))*(2*$j+1));
-                            $f_ij = $this->_matrix[$i][$j][$k];
-                            $sum += $m1 * $m2 * $cos1 * $cos2 * $f_ij;
+                    for ($m=0; $m < $M; $m++) { 
+                        for ($n=0; $n < $N; $n++) { 
+                            $sum = $this->_matrix[$m][$n][$k] * cos(pi()*(2*$m+1)*$p/(2*$M)) * cos(pi()*(2*$n+1)*$q/(2*$N));
                         }
                     }
-                    $sum = sqrt(2/$n)*sqrt(2/$m)*$sum;
-                    $dct[$u][$v][$k] = $sum;
+                    $dct[$p][$q][$k] = $a1 * $a2 * $sum;
                 }
             }
         }
         return $dct;
     }
     
+    public function CLDMatching($d1=[],$d2=[])
+    {
+        $count = count($d1);
+        $sum = 0;
+        for ($i=0; $i<$count; $i++) {
+            $sum = sqrt(pow($d1[$i][0]-$d2[$i][0], 2)) + sqrt(pow($d1[$i][1]-$d2[$i][1], 2)) + sqrt(pow($d1[$i][2]-$d2[$i][2], 2));
+        }
+        return $sum;
+    }
+
     public function CLD($image_url=null)
     {
         if ($image_url) {
@@ -111,7 +115,7 @@ class ImageDescriptorsComponent extends Component
         $this->_partitioning();
         $this->_image2Matrix('ycbcr');
         $dct = $this->_DCT();
-        $descritor = $this->_zigzag($dct);
+        return $this->_zigzag($dct);
     }
 
 }

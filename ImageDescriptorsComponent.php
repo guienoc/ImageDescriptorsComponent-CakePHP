@@ -70,12 +70,15 @@ class ImageDescriptorsComponent extends Component
         foreach ($zigzag as $k => $i) {
             $x = (int) (($i-1)/$this->_width);
             $y = (int) (($i-1)%$this->_height);
-            $descritor[$k] = $dct[$x][$y];
+            $descritor[0][$k] = $dct[$x][$y][0];
+            $descritor[1][$k] = $dct[$x][$y][1];
+            $descritor[2][$k] = $dct[$x][$y][2];
         }
         return $descritor;
     }
     protected function _DCT()
     {
+        
         $dct = [];
         $M = $this->_width;
         $N = $this->_height;
@@ -94,15 +97,16 @@ class ImageDescriptorsComponent extends Component
                 }
             }
         }
+
         return $dct;
     }
     
     public function CLDMatching($d1=[],$d2=[])
     {
-        $count = count($d1);
+        $count = count($d1[0]);
         $sum = 0;
         for ($i=0; $i<$count; $i++) {
-            $sum = sqrt(pow($d1[$i][0]-$d2[$i][0], 2)) + sqrt(pow($d1[$i][1]-$d2[$i][1], 2)) + sqrt(pow($d1[$i][2]-$d2[$i][2], 2));
+            $sum = sqrt(pow($d1[0][$i]-$d2[0][$i], 2)) + sqrt(pow($d1[1][$i]-$d2[1][$i], 2)) + sqrt(pow($d1[2][$i]-$d2[2][$i], 2));
         }
         return $sum;
     }
@@ -116,6 +120,15 @@ class ImageDescriptorsComponent extends Component
         $this->_image2Matrix('ycbcr');
         $dct = $this->_DCT();
         return $this->_zigzag($dct);
+    }
+
+    public function histogram($image_url=null)
+    {
+        if ($image_url) {
+            $this->image = $this->_loadImage($image_url);
+        }
+        $this->_image2Matrix();
+
     }
 
 }

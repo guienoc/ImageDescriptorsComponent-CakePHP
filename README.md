@@ -2,4 +2,4 @@
 
 Image Decriptors to create a Content-based Image Retrieval system.
 
-## Color Layout Descriptor 
+## Color Layout Descriptor (CLD)
